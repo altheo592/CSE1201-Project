@@ -1,15 +1,14 @@
-// Stores all the questions and handles the game round logics. 
+// Stores all the questions and handles the game round logic
 
 #include <stdio.h>    
 #include <string.h>
 #include <ctype.h>     // necessary for toupper
-#include <stdlib.h>   // necessary for rand and srand
-#include <time.h>     // necessary for time and seeding the random number generator
+#include <stdlib.h>    // necessary for rand and srand
+#include <time.h>      // necessary for time, used to seed the random number generator
 
 #ifdef _WIN32
   #include <windows.h>
   #define SLEEP(s) Sleep((s)*1000)
-
 #else
   #include <unistd.h>
   #define SLEEP(s) sleep(s)
@@ -18,17 +17,15 @@
 #include "questions.h"
 #include "scores.h"
 
-// Load all questions for the different categories
-
+// loads all questions into the category array
 void loadQuestions(Category categories[], int *total_categories) {
 
-    int idx; // tracks the current question slot
+    int idx; // tracks the current question slot in the category
 
 
-    // Geography
+    // ---- Geography ----
     strcpy(categories[0].category_name, "Geography");
     categories[0].question_count = 0;
-    
 
     idx = categories[0].question_count;
     strcpy(categories[0].questions[idx].question_text, "What is the capital of Guyana?");
@@ -75,7 +72,8 @@ void loadQuestions(Category categories[], int *total_categories) {
     categories[0].questions[idx].correct_option = 'D';
     categories[0].question_count++;
 
-    // History
+
+    // ---- History ----
     strcpy(categories[1].category_name, "History");
     categories[1].question_count = 0;
 
@@ -124,7 +122,8 @@ void loadQuestions(Category categories[], int *total_categories) {
     categories[1].questions[idx].correct_option = 'D';
     categories[1].question_count++;
 
-    // Sports 
+
+    // ---- Sports ----
     strcpy(categories[2].category_name, "Sports");
     categories[2].question_count = 0;
 
@@ -143,7 +142,7 @@ void loadQuestions(Category categories[], int *total_categories) {
     strcpy(categories[2].questions[idx].options[1], "B. Shivnarine Chanderpaul");
     strcpy(categories[2].questions[idx].options[2], "C. Clive Lloyd");
     strcpy(categories[2].questions[idx].options[3], "D. Lance Gibbs");
-    categories[2].questions[idx].correct_option = 'C';
+    categories[2].questions[idx].correct_option = 'B';
     categories[2].question_count++;
 
     idx = categories[2].question_count;
@@ -170,10 +169,11 @@ void loadQuestions(Category categories[], int *total_categories) {
     strcpy(categories[2].questions[idx].options[1], "B. Colin Boyce");
     strcpy(categories[2].questions[idx].options[2], "C. Aliann Pompey");
     strcpy(categories[2].questions[idx].options[3], "D. All of the above");
-    categories[2].questions[idx].correct_option = 'C';
+    categories[2].questions[idx].correct_option = 'D';
     categories[2].question_count++;
 
-    // Culture 
+
+    // ---- Culture ----
     strcpy(categories[3].category_name, "Culture");
     categories[3].question_count = 0;
 
@@ -222,7 +222,8 @@ void loadQuestions(Category categories[], int *total_categories) {
     categories[3].questions[idx].correct_option = 'B';
     categories[3].question_count++;
 
-    // Nature
+
+    // ---- Nature ----
     strcpy(categories[4].category_name, "Nature");
     categories[4].question_count = 0;
 
@@ -236,7 +237,7 @@ void loadQuestions(Category categories[], int *total_categories) {
     categories[4].question_count++;
 
     idx = categories[4].question_count;
-    strcpy(categories[4].questions[idx].question_text, "Guyana is know for having the worls's largest single drop waterfall, what is its name?");
+    strcpy(categories[4].questions[idx].question_text, "Guyana is known for having the world's largest single drop waterfall, what is its name?");
     strcpy(categories[4].questions[idx].options[0], "A. Niagara Falls");
     strcpy(categories[4].questions[idx].options[1], "B. Kaieteur Falls");
     strcpy(categories[4].questions[idx].options[2], "C. Angel Falls");
@@ -245,7 +246,7 @@ void loadQuestions(Category categories[], int *total_categories) {
     categories[4].question_count++;
 
     idx = categories[4].question_count;
-    strcpy(categories[4].questions[idx].question_text, "Their lurks a very big snake in Guyana's Rainforest, what is it");
+    strcpy(categories[4].questions[idx].question_text, "There lurks a very big snake in Guyana's rainforest, what is it?");
     strcpy(categories[4].questions[idx].options[0], "A. Python");
     strcpy(categories[4].questions[idx].options[1], "B. Pit Viper");
     strcpy(categories[4].questions[idx].options[2], "C. Green Anaconda");
@@ -268,13 +269,13 @@ void loadQuestions(Category categories[], int *total_categories) {
     strcpy(categories[4].questions[idx].options[1], "B. Aracari");
     strcpy(categories[4].questions[idx].options[2], "C. Splashmins");
     strcpy(categories[4].questions[idx].options[3], "D. Lake Mainstay");
-    categories[4].questions[idx].correct_option = 'C';
+    categories[4].questions[idx].correct_option = 'A'; // fixed: Iwokrama is correct, was 'C' before
     categories[4].question_count++;
 
-    *total_categories = 5; 
+    *total_categories = 5;
 }
 
-// Prints the questions along with the options
+// prints the question text and the four answer options
 void printQuestion(Question q) {
     printf("\n  Question: %s\n", q.question_text);
     printf("    %s\n", q.options[0]);
@@ -283,7 +284,7 @@ void printQuestion(Question q) {
     printf("    %s\n", q.options[3]);
 }
 
-// prints a question, collects input and checks if correct
+// prints a question, reads the answer and tells the player if they got it right
 void askQuestion(Question q) {
     char answer;
     printQuestion(q);
@@ -298,94 +299,97 @@ void askQuestion(Question q) {
         printf("  Wrong! The correct answer is %c\n", q.correct_option);
 }
 
-// Fisher-Yates Shuffle which randomises the index array's order
+// Fisher-Yates shuffle - randomises the order of the index array
 static void shuffle(int *arr, int n) {
-    for (int i = n - 1; i > 0; i--) {
-        int j = rand() % (i + 1); // picks a random index form 0 up to i
+    int i;
+    for (i = n - 1; i > 0; i--) {
+        int j = rand() % (i + 1); // picks a random index from 0 up to i
         int tmp = arr[i];
         arr[i] = arr[j];
         arr[j] = tmp;
     }
 }
 
-// Shows the lives that the player gets based on the selected diffculty
+// returns how many lives the player gets based on chosen difficulty
 static int livesForDifficulty(int diff) {
-    if (diff == 1) return 5;   // Easy   
-    if (diff == 2) return 3;   // Medium 
-    return 1;                  // Hard   
+    if (diff == 1) return 5;   // Easy
+    if (diff == 2) return 3;   // Medium
+    return 1;                  // Hard
 }
 
-/* Runs one full round and returns the score
-   category_choice : 0 = all categories, 1-5 = specific category
-   difficulty      : 1=Easy  2=Medium  3=Hard */
-
+// runs one full round and returns the final score
+// category_choice: 0 = all, 1-5 = specific category
+// difficulty: 1=Easy 2=Medium 3=Hard
 int playRound(Category game_bank[], int num_categories,
               int category_choice, int difficulty,
               const char *player_name)
 {
-    srand((unsigned int)time(NULL)); // syncs with the current time so question can be randomised everytime
+    srand((unsigned int)time(NULL)); // seed random with current time so questions are different each run
 
-    // Build a pool of pointers to every question in the category chosen
+    // build a pool of pointers to all questions in the chosen category
     Question *pool[50];
     int pool_size = 0;
+    int c, q;
 
-    for (int c = 0; c < num_categories; c++) {
-        /* Skip categories not selected (0 = all) */
+    for (c = 0; c < num_categories; c++) {
+        // skip categories that werent selected (0 means include all)
         if (category_choice != 0 && c != category_choice - 1) continue;
-        for (int q = 0; q < game_bank[c].question_count; q++) {
+        for (q = 0; q < game_bank[c].question_count; q++) {
             if (pool_size < 50)
                 pool[pool_size++] = &game_bank[c].questions[q];
         }
     }
 
+    // make sure we have at least 5 questions to work with
     if (pool_size < 5) {
         printf("\n  Not enough questions for that selection. Try again.\n");
         return 0;
     }
 
-    // Shuffles an index array for random order of questions
+    // create an index array and shuffle it so questions come out in random order
     int order[50];
     int i;
     for (i = 0; i < pool_size; i++)
         order[i] = i;
     shuffle(order, pool_size);
 
-    int lives      = livesForDifficulty(difficulty);
-    int score      = 0;
-    int asked      = 0;
-    int base_pts   = (difficulty == 1) ? 10 : (difficulty == 2) ? 20 : 30;
+    int lives    = livesForDifficulty(difficulty);
+    int score    = 0;
+    int asked    = 0;
+    int base_pts = (difficulty == 1) ? 10 : (difficulty == 2) ? 20 : 30;
 
+    // show round info before starting
     printf("\n  ============================================\n");
-    printf("  Player : %s\n", player_name);
-    printf("  Category: %s\n",
-           category_choice == 0 ? "All Categories"
-                                : game_bank[category_choice - 1].category_name);
-    printf("  Difficulty: %s    Lives: %d    Points/Q: %d\n",
-           difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard",
-           lives, base_pts);
+    printf("  Player     : %s\n", player_name);
+    printf("  Category   : %s\n", category_choice == 0 ? "All Categories" : game_bank[category_choice - 1].category_name);
+    printf("  Difficulty : %s\n", difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard");
+    printf("  Lives      : %d\n", lives);
+    printf("  Pts/Question: %d\n", base_pts);
     printf("  ============================================\n");
     printf("  Press ENTER to begin...");
 
-    // clears any left over newline from the buffer and waits on the player
+    // clear buffer then wait for enter
     {
         int ch;
         while ((ch = getchar()) != '\n' && ch != EOF);
     }
     getchar();
 
-    // Main loop for the questions which runs until lives are finished or all questions completed
+    // main question loop - keeps going until out of lives or out of questions
     while (asked < pool_size && lives > 0) {
         Question *curr = pool[order[asked]];
 
-        // Every 5th question correct is a bonus double point
+        // every 5th question is a bonus worth double points
         int is_bonus = ((asked + 1) % 5 == 0);
         int pts      = is_bonus ? base_pts * 2 : base_pts;
 
         printf("\n  --------------------------------------------\n");
-        printf("  Q%d  |  Lives: %d  |  Score: %d%s\n",
-               asked + 1, lives, score,
-               is_bonus ? "  [*** BONUS — 2x points! ***]" : "");
-        printf("  --------------------------------------------");
+        printf("  Q%d  |  Lives: %d  |  Score: %d", asked + 1, lives, score);
+
+        // show bonus tag if applicable
+        if (is_bonus)
+            printf("  [*** BONUS - 2x points! ***]");
+        printf("\n  --------------------------------------------");
 
         printQuestion(*curr);
 
@@ -398,20 +402,20 @@ int playRound(Category game_bank[], int num_categories,
             printf("  Correct! +%d points\n", pts);
             score += pts;
         } else {
-            printf("  Wrong! The correct answer was %c.  Lives left: %d\n",
-                   curr->correct_option, lives - 1);
             lives--;
+            printf("  Wrong! The correct answer was %c.  Lives left: %d\n", curr->correct_option, lives);
         }
 
         asked++;
 
+        // check lives after each wrong answer
         if (lives == 0) {
-            printf("\n  No lives remaining — round over!\n");
+            printf("\n  No lives remaining - round over!\n");
             break;
         }
     }
 
-    // End of round scoring details
+    // end of round summary
     printf("\n  ============================================\n");
     printf("             ROUND OVER!\n");
     printf("  ============================================\n");
@@ -421,7 +425,7 @@ int playRound(Category game_bank[], int num_categories,
     printf("  FINAL SCORE     : %d\n", score);
     printf("  ============================================\n");
 
-    // Saves the score
+    // save score and show updated history and leaderboard
     saveScore(player_name, score);
     showPlayerHistory(player_name);
     showLeaderboard();

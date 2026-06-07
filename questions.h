@@ -17,7 +17,7 @@ typedef struct {
     int  question_count;
 } Category;
 
-void loadQuestions(Category categories[], int *count); // loads the array with all the questions
+void loadQuestions(Category categories[], int *count);//loads the array with all the questions
 void printQuestion(Question q); // prints the questions and the four choices
 void askQuestion(Question q); // prints the question and reads the player's answer
 

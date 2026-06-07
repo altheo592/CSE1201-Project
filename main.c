@@ -1,7 +1,5 @@
-/* This file handles how the entire application functions; controls the application loop,
-menu and the questions and scoring modules.
-*/
-
+// This file handles how the entire application functions; controls the application loop,
+// menu and the questions and scoring modules
 #include <stdio.h>     // neccesary for printf, scanf and the like
 #include <string.h>    // neccesary for all teh sting functions 
 #include "questions.h" // loads the question structure file
@@ -74,8 +72,8 @@ int main(void) {
         strcpy(player_name, "Player");
 
     // Main menu loop that runs until game is exited
-    int running = 1;
-    while (running) {
+    int running = 1; // this handles the loop, 1 is keep going and 0 is quit
+    while (running) { // shows menu until exited
         printHeader();
         printf("  Hello, %s!\n\n", player_name);
         printf("  1. Play Game\n");
@@ -87,8 +85,8 @@ int main(void) {
         printf("  Enter your choice: ");
 
         int choice;
-        if (scanf("%d", &choice) != 1) { flushInput(); continue; }
-        flushInput();
+        if (scanf("%d", &choice) != 1) { flushInput(); continue; }  // if the input fails, clear the buffer and show menu again
+        flushInput(); // clears the newline
 
         if (choice == 1) {
             int cat  = chooseCategory(game_bank, num_categories);
